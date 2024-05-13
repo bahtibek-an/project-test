@@ -1,0 +1,5 @@
+{
+    "serverPort" : 1024,
+    "dbURL":"mongodb+srv://nci:bSV7T2WQwCiAzeB1@nci.kwe5owj.mongodb.net/?retryWrites=true&w=majority&appName=nci",
+    "secretKey":"mern-secket-key"
+}
