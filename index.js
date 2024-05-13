@@ -4,11 +4,17 @@ const config = require("config");
 const authRouter = require("./routes/auth.routes");
 const userRouter = require("./routes/user.routes");
 const app = express();
-const PORT = config.get("serverPort");
 const corsMiddleware = require("./middleware/cors.middleware");
 const User = require("./models/User");
 const depositRoutes = require("./routes/deposit.routes");
+import dotenv from "dotenv";
 const cors = require("cors");
+dotenv.config();
+
+const PORT = process.env.PORT || 3000;
+
+// config.get("serverPort");
+
 
 app.use(cors());
 app.use(corsMiddleware);
