@@ -7,7 +7,7 @@ const app = express();
 const corsMiddleware = require("./middleware/cors.middleware");
 const User = require("./models/User");
 const depositRoutes = require("./routes/deposit.routes");
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 const cors = require("cors");
 dotenv.config();
 
