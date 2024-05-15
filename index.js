@@ -11,7 +11,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // config.get("serverPort");
 
