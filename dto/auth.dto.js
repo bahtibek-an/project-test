@@ -12,6 +12,15 @@ const registerValidator = [
         "secretWord",
         "Секретное слово должно содержать от 4 до 20 символов"
     ).isLength({ min: 4, max: 20 }),
+    check("firstName")
+        .isString()
+        .withMessage("Имя не заполнена"),
+    check("lastName")
+        .isString()
+        .withMessage("Фамилия не заполнена"),
+    check("surName")
+        .isString()
+        .withMessage("Отчество не заполнена"),
     // check("referalCode", "Реферальный код содержит 6 символов").isLength({
     //     min: 0,
     //     max: 6,

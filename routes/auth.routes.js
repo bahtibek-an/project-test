@@ -15,7 +15,7 @@ router.post("/registration", registerValidator, async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ message: "Некорректный запрос", errors });
     }
-    const { tel, email, password, secretWord, role, referal } = req.body;
+    const { tel, email, password, secretWord, role, referal, firstName, lastName, surName } = req.body;
     const candidate_email = await User.findOne({ email });
 
     if (candidate_email) {
@@ -34,6 +34,9 @@ router.post("/registration", registerValidator, async (req, res) => {
       password: hashPassword,
       secretWord,
       role,
+      firstName: firstName,
+      lastName: lastName,
+      surName: surName,
     });
 
     if(referal) {
@@ -89,7 +92,10 @@ router.post("/login", loginValidator, async (req, res) => {
           email: user.email,
           role: user.role,
           balance: user.balance,
-          referrals: user.referrals
+          referrals: user.referrals,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          surName: user.surName,
         },
 
       });
@@ -116,7 +122,10 @@ router.get("/auth", authMiddleware, async (req, res) => {
         email: user.email,
         role: user.role,
         balance: user.balance,
-        referrals: user.referrals
+        referrals: user.referrals,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        surName: user.lastName,
       },
     });
   } catch (e) {
@@ -144,6 +153,9 @@ router.get("/me", authMiddleware, async (req, res) => {
         role: user.role,
         balance: user.balance,
         referrals: user.referrals,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        surName: user.lastName
       },
     });
   } catch (e) {

@@ -9,6 +9,7 @@ const User = require("./models/User");
 const depositRoutes = require("./routes/deposit.routes");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const Staking = require("./models/Staking");
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -29,8 +30,8 @@ const start = async () => {
     await mongoose.connect(config.get("dbURL"));
     
     // await User.findOneAndUpdate({ _id: "663b95c3c8d2adc724fb5515" }, { role: "ADMIN" });
-    const users = await User.find()
-    console.log(users);
+    // const staking = await Staking.find()
+    // console.log(staking);
 
     app.listen(PORT, () => {
       console.log("server started on port ", PORT);

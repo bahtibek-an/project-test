@@ -10,7 +10,7 @@ router.get("/staking", async (req, res) => {
 
     // Возвращаем все записи стейкинга
     // return res.json({ stakings: allStakings });
-    return res.json({ stakings: [] });
+    return res.json(allStakings);
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: "Server error" });
