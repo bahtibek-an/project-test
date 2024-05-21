@@ -10,10 +10,15 @@ const Deposit = new Schema({
   },
   user: { type: Schema.Types.ObjectId, ref: "User" },
   depositTerm: {
-    type: String,
+    type: Number,
   },
   address: {
     type: String,
+  },
+  currency: {
+    type: String,
+    enum: ["USDT", "RUB"],
+    default: "USDT"
   },
   status: {
     type: String,

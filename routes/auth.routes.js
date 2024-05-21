@@ -65,7 +65,6 @@ router.post("/login", loginValidator, async (req, res) => {
     const { tel, email, password } = req.body;
     const user = await User.findOne({ email }).populate("referrals");
 
-
     if (!user) {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
