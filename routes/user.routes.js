@@ -31,5 +31,18 @@ router.get("/users", async (req, res) => {
   }
 });
 
+router.get("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id); // Получаем все записи стейкинга из базы данных
+
+    // Возвращаем все записи стейкинга
+    return res.json(user);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 module.exports = router;

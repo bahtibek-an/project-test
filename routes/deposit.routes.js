@@ -1,24 +1,32 @@
-const { Router } = require("express");
+const {Router} = require("express");
 const authMiddleware = require("../middleware/auth.middleware");
 const Deposit = require("../models/Deposit");
 const User = require("../models/User");
+const {check, validationResult} = require("express-validator");
 
 const depositRoutes = Router();
 
 depositRoutes.post("/", authMiddleware, async (req, res) => {
-    const { price, operation, address, withdrawalDetails, currency, depositTerm } = req.body;
+    const {price, operation, address, withdrawalDetails, currency, depositTerm} = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId);
-    if(!user) {
-        return res.status(404).json({ message: "Пользователь не найден" })
+    if (!user) {
+        return res.status(404).json({message: "Пользователь не найден"})
     }
-    if(operation === "WITHDRAW") {
-        if(user.balance < +price) {
-            return res.status(400).json({ message: "Сумма вывода больше, чем баланс" });
+    if (operation === "WITHDRAW") {
+        if (user.balance < +price) {
+            return res.status(400).json({message: "Сумма вывода больше, чем баланс"});
         }
     }
-    console.log(currency)
-    const deposit = await Deposit.create({ price, operation, address, withdrawalDetails, user: userId, currency, depositTerm });
+    const deposit = await Deposit.create({
+        price,
+        operation,
+        address,
+        withdrawalDetails,
+        user: userId,
+        currency,
+        depositTerm
+    });
     return res.status(201).json(deposit)
 });
 
@@ -29,21 +37,28 @@ depositRoutes.get("/", authMiddleware, async (req, res) => {
 });
 
 depositRoutes.get("/transactions", authMiddleware, async (req, res) => {
-    const { operation } = req.query;
+    const {operation} = req.query;
     const userId = req.user.id;
     let deposit;
-    if(operation) {
-        deposit = await Deposit.find({ user: userId, operation: operation });
+    if (operation) {
+        deposit = await Deposit.find({user: userId, operation: operation});
     } else {
-        deposit = await Deposit.find({ user: userId });
+        deposit = await Deposit.find({user: userId});
     }
     return res.json(deposit);
 });
 
-depositRoutes.get("/change-status/:id", authMiddleware, async (req, res) => {
+depositRoutes.post("/change-status/:id", authMiddleware, [check("price").isNumeric().withMessage("Price should be a number")], async (req, res) => {
     const {id} = req.params;
+    const {price} = req.body;
     try {
-        const deposit = await Deposit.findById(id);
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: "Некорректный запрос", errors });
+        }
+        const deposit = await Deposit.findByIdAndUpdate(id, {
+            price: price
+        }, {new: true});
         if (!deposit) {
             return res.status(404).json({message: "Операция не найдена"});
         }
