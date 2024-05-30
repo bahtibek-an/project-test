@@ -51,10 +51,11 @@ depositRoutes.get("/transactions", authMiddleware, async (req, res) => {
 depositRoutes.post("/change-status/:id", authMiddleware, [check("price").isNumeric().withMessage("Price should be a number")], async (req, res) => {
     const {id} = req.params;
     const {price} = req.body;
+
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Некорректный запрос", errors });
+            return res.status(400).json({message: "Некорректный запрос", errors});
         }
         const deposit = await Deposit.findByIdAndUpdate(id, {
             price: price
@@ -65,16 +66,24 @@ depositRoutes.post("/change-status/:id", authMiddleware, [check("price").isNumer
         if (deposit.status === "DONE") {
             return res.status(400).json({message: "Это операция уже выполнена"});
         }
+
         const user = await User.findById(deposit.user);
         if (!user) {
             return res.status(404).json({message: "Пользователь не найден"});
         }
-        const exchangeRate = deposit.currency === "RUB" ? await getExchangeRate() : 1;
 
+        const exchangeRate = deposit.currency === "RUB" ? await getExchangeRate() : 1;
         const amountUSD = deposit.currency === "RUB" ? deposit.price / exchangeRate : deposit.price;
 
         if (deposit.operation === "DEPOSIT") {
             user.balance += amountUSD;
+
+            const referrers = await User.find({ referrals: user._id });
+            referrers.forEach(async (referrer) => {
+                const referralBonus = 0.10 * amountUSD;
+                referrer.balance += referralBonus;
+                await referrer.save();
+            });
         } else {
             if (amountUSD > user.balance) {
                 return res.status(400).json({message: "Баланс пользователя недостаточно для вывода"});
@@ -82,13 +91,14 @@ depositRoutes.post("/change-status/:id", authMiddleware, [check("price").isNumer
                 user.balance -= amountUSD;
             }
         }
-        deposit.status = "DONE";
 
+        deposit.status = "DONE";
         await user.save();
         await deposit.save();
 
         return res.json({user, deposit});
     } catch (e) {
+        console.log(e);
         return res.status(500).json("Internal server error");
     }
 });
