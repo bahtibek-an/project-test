@@ -7,6 +7,7 @@ const { check, validationResult } = require("express-validator");
 const authMiddleware = require("../middleware/auth.middleware");
 const { registerValidator, loginValidator } = require("../dto/auth.dto");
 const router = new Router();
+const Deposit = require("../models/Deposit");
 
 router.post("/registration", registerValidator, async (req, res) => {
 
@@ -81,6 +82,15 @@ router.post("/login", loginValidator, async (req, res) => {
       expiresIn: "1d",
     });
 
+    const referrals = [];
+
+    for (const referral of user.referrals) {
+      const deposit = await Deposit.find({ user: referral._id });
+      if (deposit.length > 0) {
+        referrals.push(referral);
+      }
+    }
+
     return res
       .status(200)
       .json({
@@ -91,12 +101,11 @@ router.post("/login", loginValidator, async (req, res) => {
           email: user.email,
           role: user.role,
           balance: user.balance,
-          referrals: user.referrals,
+          referrals: referrals,
           firstName: user.firstName,
           lastName: user.lastName,
           surName: user.surName,
         },
-
       });
   } catch (e) {
     console.log(e);
@@ -113,6 +122,15 @@ router.get("/auth", authMiddleware, async (req, res) => {
       expiresIn: "1d",
     });
 
+    const referrals = [];
+
+    for (const referral of user.referrals) {
+      const deposit = await Deposit.find({ user: referral._id });
+      if (deposit.length > 0) {
+        referrals.push(referral);
+      }
+    }
+
     return res.json({
       token,
       user: {
@@ -121,7 +139,7 @@ router.get("/auth", authMiddleware, async (req, res) => {
         email: user.email,
         role: user.role,
         balance: user.balance,
-        referrals: user.referrals,
+        referrals: referrals,
         firstName: user.firstName,
         lastName: user.lastName,
         surName: user.lastName,
@@ -144,6 +162,16 @@ router.get("/me", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
 
+    const referrals = [];
+
+    for (const referral of user.referrals) {
+      const deposit = await Deposit.find({ user: referral._id });
+      if (deposit.length > 0) {
+        referrals.push(referral);
+      }
+    }
+
+
     return res.json({
       user: {
         id: user.id,
@@ -151,7 +179,7 @@ router.get("/me", authMiddleware, async (req, res) => {
         email: user.email,
         role: user.role,
         balance: user.balance,
-        referrals: user.referrals,
+        referrals: referrals,
         firstName: user.firstName,
         lastName: user.lastName,
         surName: user.lastName
