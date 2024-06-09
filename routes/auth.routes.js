@@ -50,8 +50,7 @@ router.post("/registration", registerValidator, async (req, res) => {
 
     return res.json({ message: "Аккаунт создан" });
   } catch (e) {
-    console.log(e);
-    res.send({ message: "Ошибка сервера" });
+    res.status(500).send({ message: "Ошибка сервера" });
   }
 }
 );
