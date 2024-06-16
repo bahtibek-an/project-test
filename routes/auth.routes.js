@@ -89,6 +89,7 @@ router.post("/login", loginValidator, async (req, res) => {
         referrals.push(referral);
       }
     }
+    const lastDeposit = await Deposit.findOne().sort({ createdAt: -1 });
 
     return res
       .status(200)
@@ -104,6 +105,7 @@ router.post("/login", loginValidator, async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           surName: user.surName,
+          lastDepositTime: lastDeposit?.createdAt,
         },
       });
   } catch (e) {
@@ -116,6 +118,8 @@ router.post("/login", loginValidator, async (req, res) => {
 router.get("/auth", authMiddleware, async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.user.id }).populate("referrals");
+
+    const lastDeposit = await Deposit.findOne().sort({ createdAt: -1 });
 
     const token = jwt.sign({ id: user.id }, config.get("secretKey"), {
       expiresIn: "1d",
@@ -142,6 +146,7 @@ router.get("/auth", authMiddleware, async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         surName: user.lastName,
+        lastDepositTime: lastDeposit?.createdAt,
       },
     });
   } catch (e) {
@@ -156,6 +161,7 @@ router.get("/me", authMiddleware, async (req, res) => {
     const userId = req.user.id;
 
     const user = await User.findById(userId).populate("referrals");
+    const lastDeposit = await Deposit.findOne().sort({ createdAt: -1 });
 
     if (!user) {
       return res.status(404).json({ message: "Пользователь не найден" });
@@ -181,7 +187,8 @@ router.get("/me", authMiddleware, async (req, res) => {
         referrals: referrals,
         firstName: user.firstName,
         lastName: user.lastName,
-        surName: user.lastName
+        surName: user.lastName,
+        lastDepositTime: lastDeposit?.createdAt,
       },
     });
   } catch (e) {
